@@ -109,18 +109,6 @@ class LookupFailure(object):
         )
 
 
-class ResolverError(Exception):
-    def __init__(self, failures, schema_key: SchemaKey):
-        self.failures = failures
-        self.schema_key = schema_key
-        failures_str = "; ".join([str(failure) for failure in failures])
-        self.message = "Schema [{schema_uri}] was not found in [{lookup_count}] registries with following attempts: [{failures}]".format(
-            schema_uri=schema_key.as_uri(),
-            lookup_count=len(failures),
-            failures=failures_str,
-        )
-
-
 _bootstrap_registry = None
 
 
