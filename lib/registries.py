@@ -50,11 +50,12 @@ class LocalFileSystemRegistryRef(RegistryRef):
 
 
 class HttpRegistryRef(RegistryRef):
-    def __init__(self, config: RegistryRefConfig, uri: str):
+    def __init__(self, config: RegistryRefConfig, uri: str, api_key=None):
         self.config = config
         self.class_priority = 100
         self.descriptor = "HTTP"
         self.uri = uri
+        self.api_key = api_key
 
     def lookup_schema(self, schema_key: SchemaKey, max_retries=3) -> str:
         schema_uri = "{uri}/schemas/{schema_path}".format(
@@ -62,11 +63,15 @@ class HttpRegistryRef(RegistryRef):
         )
         times_retried = 0
 
+        headers = {}
+        if self.api_key:
+            headers["apiKey"] = self.api_key
+
         while True:
             r = None
 
             try:
-                r = requests.get(schema_uri, timeout=3)
+                r = requests.get(schema_uri, headers=headers, timeout=3)
             except requests.exceptions.ConnectionError as e:
                 raise IgluError(
                     "Iglu registry {config_name} is not available: {error}".format(

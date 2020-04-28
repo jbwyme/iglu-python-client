@@ -1,6 +1,6 @@
 import jsonschema
 import time
-from typing import List
+from typing import List, Union
 
 from .core import SchemaKey, IgluError
 from .registries import (
@@ -22,7 +22,7 @@ class Resolver(object):
         self.cacheTtl = cacheTtl
 
     # Lookup schema in cache or try to fetch
-    def lookup_schema(self, schema_key: SchemaKey) -> dict:
+    def lookup_schema(self, schema_key: Union[str, SchemaKey]) -> dict:
         lookup_time = time.time()
         if isinstance(schema_key, str):
             schema_key = SchemaKey.parse_key(schema_key)
@@ -85,7 +85,11 @@ class Resolver(object):
     def parse_registry(config) -> RegistryRef:
         ref_config = RegistryRefConfig.parse(config)
         if config.get("connection", {}).get("http"):
-            return HttpRegistryRef(ref_config, config["connection"]["http"]["uri"])
+            return HttpRegistryRef(
+                ref_config,
+                config["connection"]["http"]["uri"],
+                config["connection"]["http"].get("apikey"),
+            )
         else:
             raise IgluError("Incorrect RegistryRef")
 

@@ -1,6 +1,8 @@
 import json
 import pytest
 import time
+import requests
+from unittest.mock import patch
 
 from lib.resolver import Resolver
 from lib.core import IgluError, SchemaKey, SchemaVer
@@ -122,6 +124,34 @@ def config_with_null_cacheTtl():
     return json.loads(config_with_null_cacheTtl)
 
 
+@pytest.fixture
+def config_with_api_key():
+    config = """
+    {
+      "schema": "iglu:com.snowplowanalytics.iglu/resolver-config/jsonschema/1-0-2",
+      "data": {
+        "cacheSize": 500,
+        "repositories": [
+          {
+            "name": "Iglu Central",
+            "priority": 1,
+            "vendorPrefixes": [
+              "com.snowplowanalytics"
+            ],
+            "connection": {
+              "http": {
+                "uri": "http://iglucentral.com",
+                "apikey": "fake-key"
+              }
+            }
+          }
+        ]
+      }
+    }
+    """
+    return json.loads(config)
+
+
 class TestResolver:
     @pytest.mark.usefixtures("json_config")
     def test_standard_configuration(self, json_config):
@@ -217,3 +247,16 @@ class TestResolver:
         config = '{ "$schema": "http://iglucentral.com/schemas/com.snowplowanalytics.self-desc/schema/jsonschema/1-0-0#", "description": "Schema for an Iglu resolver\'s configuration", "self": { "vendor": "com.snowplowanalytics.iglu", "name": "resolver-config", "format": "jsonschema", "version": "1-0-0" }, "type": "object", "properties": { "cacheSize": { "type": "number" }, "repositories": { "type": "array", "items": { "type": "object", "properties": { "name": { "type": "string" }, "priority": { "type": "number" }, "vendorPrefixes": { "type": "array", "items": { "type": "string" } }, "connection": { "type": "object", "oneOf": [ { "properties": { "embedded": { "type": "object", "properties": { "path": { "type": "string" } }, "required": ["path"], "additionalProperties": false } }, "required": ["embedded"], "additionalProperties": false }, { "properties": { "http": { "type": "object", "properties": { "uri": { "type": "string", "format": "uri" } }, "required": ["uri"], "additionalProperties": false } }, "required": ["http"], "additionalProperties": false } ] } }, "required": ["name", "priority", "vendorPrefixes", "connection"], "additionalProperties": false } } }, "required": ["cacheSize", "repositories"], "additionalProperties": false }'
         result = json.loads(config)
         assert schema == result
+
+    @pytest.mark.usefixtures("config_with_api_key")
+    def test_config_with_api_key(self, config_with_api_key):
+        with patch.object(requests, "get", wraps=requests.get) as wrapped_get:
+            resolver = Resolver.parse(config_with_api_key)
+            resolver.lookup_schema(
+                "iglu:com.snowplowanalytics.self-desc/schema/jsonschema/1-0-0"
+            )
+            wrapped_get.assert_called_with(
+                "http://iglucentral.com/schemas/com.snowplowanalytics.self-desc/schema/jsonschema/1-0-0",
+                headers={"apiKey": "fake-key"},
+                timeout=3,
+            )
