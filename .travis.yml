@@ -1,14 +1,20 @@
 language: python
 python:
-  - "3.6"
-  - "3.7"
-  - "3.8"
-  - "3.8-dev"  # 3.8 development branch
-  - "nightly"  # nightly build
-# command to install dependencies
+- '3.6'
+- '3.7'
+- '3.8'
+- 3.8-dev
+- nightly
 install:
-  - pip install -r requirements.txt
-# command to run tests
+- pip install -r requirements.txt
 script:
-  - pre-commit run --all-files
-  - pytest
+- pre-commit run --all-files
+- pytest
+deploy:
+  provider: pypi
+  user: "__token__"
+  password:
+    secure: aZ8eYEZfxHmLCQI9smqIvwfXepYmW+MXNaafIkSHAGPIV9lBmJgOBovCMZOUJ/n2AtHU5Zwf3YjSQmUfitaQidQouuYqP2Nnd/hy+zJKHLbFhld668M9bqYHXaQV631pzU+D7fAYL8IFIg98pm92Xt96F+y1avvUFKyp1IGCCG7dFQ7oxrGHLX6hYGXQ5KRArGw0bhxiUZVsM8ulD+B+stZs3OItlFC7osqJDpNK0Y9ZGr8qRZkvhgp+Cbzyll4dnmwH/FwxrFSdLzJc7vlQVz6wilB2BUEh8QKWpZ9O+iBf1KHLglwh7Wu8TlgkWiRLmAEDMSVwSbG84hquBkdjbHtB3bQ6I7LUotd5/+LeIdj+/anY0LXumUiU7rS6usDbpfgDds2TxW2nlESgKPFyYz0sd3wz57Jqwv+zFUw6wFj8vaXaqE9EPqm3+WTz2djf0POeipR7EDpSGH+1CbEt6ZmxagC1Xvu5MQmLMg3d4+wreJ/qvmo7fZs0hhDf2n3trDjyVpIZV8rV+4xVftK2kr/AWtsk8P/baWnJa11rs1G/566302zKa5MuBitR+5LFaAtQuZ4xIdNzazZ2mqXq/wMR0l5WLqtQDYhVS9NCWl05SuMEO6zT8sAg2gpQZbLt9gC6hKtrj8V4y76eo8EevYR0bXXCdTodaO8DGA0LPrM=
+  skip_existing: true
+  on:
+    tags: true
