@@ -79,7 +79,7 @@ class Resolver(object):
         return Resolver(registries, cacheTtl)
 
     @staticmethod
-    def parse_registry(config) -> RegistryRef:
+    def parse_registry(config: dict) -> RegistryRef:
         ref_config = RegistryRefConfig.parse(config)
         if config.get("connection", {}).get("http"):
             return HttpRegistryRef(
