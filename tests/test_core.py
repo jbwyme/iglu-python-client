@@ -1,6 +1,6 @@
 import pytest
 
-from lib.core import SchemaKey, SchemaVer, IgluError
+from iglu_client.core import SchemaKey, SchemaVer, IgluError
 
 
 class TestSchemaKey:

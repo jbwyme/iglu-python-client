@@ -1,9 +1,8 @@
-import json
 import pytest
 
-from lib.registries import RegistryRefConfig, HttpRegistryRef
-from lib.resolver import Resolver
-from lib.self_describing_json import SelfDescribingJson
+from iglu_client.registries import RegistryRefConfig, HttpRegistryRef
+from iglu_client.resolver import Resolver
+from iglu_client.self_describing_json import SelfDescribingJson
 
 
 @pytest.fixture
@@ -25,7 +24,7 @@ class TestSelfDescribingJson:
       }
     }
     """
-        assert SelfDescribingJson.parse_json(json.loads(instance)).valid(resolver)
+        assert SelfDescribingJson.parse(instance).valid(resolver)
 
     @pytest.mark.usefixtures("resolver")
     def test_invalid_self_describing_json(self, resolver):
@@ -38,4 +37,4 @@ class TestSelfDescribingJson:
       }
     }
     """
-        assert not SelfDescribingJson.parse_json(json.loads(instance)).valid(resolver)
+        assert not SelfDescribingJson.parse(instance).valid(resolver)

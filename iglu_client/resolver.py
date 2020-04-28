@@ -4,15 +4,11 @@ from typing import List, Union
 
 from .core import SchemaKey, IgluError
 from .registries import (
-    LookupFailure,
-    NotFound,
     RegistryRef,
     RegistryRefConfig,
     HttpRegistryRef,
     get_bootstrap_registry,
 )
-
-# Iglu Client. Able to fetch schemas only from Iglu Central
 
 
 class Resolver(object):
@@ -63,22 +59,23 @@ class Resolver(object):
                 return lookup_result
 
     @classmethod
-    def parse(cls, json):
-        schema_key = Resolver.get_schema_key(json)
-        # todo: figure this out
-        schema = get_bootstrap_registry().lookup_schema(schema_key)
-        data = cls.get_data(json)
+    def parse(cls, conf_json: str):
+        from .self_describing_json import SelfDescribingJson
+
+        conf = SelfDescribingJson.parse(conf_json)
+        resolver = Resolver([])
         try:
-            print("schema: %s" % schema)
-            jsonschema.validate(instance=data, schema=schema)
+            conf.validate(resolver)
         except jsonschema.exceptions.ValidationError as e:
             raise IgluError(
                 "Invalid resolver configuration. Data did not validate against schema: %s"
                 % e.message
             )
 
-        registries = [cls.parse_registry(registry) for registry in data["repositories"]]
-        cacheTtl = json["data"].get("cacheTtl")
+        registries = [
+            cls.parse_registry(registry) for registry in conf.data["repositories"]
+        ]
+        cacheTtl = conf.data.get("cacheTtl")
         return Resolver(registries, cacheTtl)
 
     @staticmethod
@@ -92,39 +89,6 @@ class Resolver(object):
             )
         else:
             raise IgluError("Incorrect RegistryRef")
-
-    @staticmethod
-    def get_schema_key(json) -> SchemaKey:
-        schema_uri = json.get("schema")
-        if not schema_uri:
-            raise IgluError(
-                "JSON instance is not self-describing (schema property is absent):\n {json}".format(
-                    json=json.to_json()
-                )
-            )
-        else:
-            return SchemaKey.parse_key(schema_uri)
-
-    @staticmethod
-    def get_data(json) -> dict:
-        data = json.get("data")
-        if not data:
-            raise IgluError(
-                "JSON instance is not self-describing (data proprty is absent):\n {json}".format(
-                    json=json.to_json()
-                )
-            )
-        else:
-            return data
-
-    # Return true or throw exception
-    def validate(self, json) -> True:
-        schema_key = Resolver.get_schema_key(json)
-        data = Resolver.get_data(json)
-        schema = self.lookup_schema(schema_key)
-        print("schema: %s" % schema)
-        jsonschema.validate(instance=data, schema=schema)
-        return True
 
     def prioritize_repos(
         schema_key: SchemaKey, registry_refs: List[RegistryRef]
@@ -146,4 +110,31 @@ class ResolverError(Exception):
             schema_uri=schema_key.as_uri(),
             lookup_count=len(failures),
             failures=failures_str,
+        )
+
+
+class NotFound(object):
+    def __init__(self, registry: str):
+        self.registry = registry
+
+    def __str__(self):
+        return "Not found in {registry}".format(registry=self.registry)
+
+    def __repr__(self):
+        return "Not found in {registry}".format(registry=self.registry)
+
+
+class LookupFailure(object):
+    def __init__(self, registry: str, reason: str):
+        self.reason = reason
+        self.registry = registry
+
+    def __str__(self):
+        return "Lookup failure at {registry} because {reason}".format(
+            registry=self.registry, reason=self.reason
+        )
+
+    def __repr__(self):
+        return "Lookup failure at {registry} because {reason}".format(
+            registry=self.registry, reason=self.reason
         )

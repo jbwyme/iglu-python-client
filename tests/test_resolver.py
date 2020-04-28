@@ -4,9 +4,9 @@ import time
 import requests
 from unittest.mock import patch
 
-from lib.resolver import Resolver
-from lib.core import IgluError, SchemaKey, SchemaVer
-from lib.registries import (
+from iglu_client.resolver import Resolver
+from iglu_client.core import IgluError, SchemaKey, SchemaVer
+from iglu_client.registries import (
     RegistryRefConfig,
     HttpRegistryRef,
     get_bootstrap_registry,
@@ -37,7 +37,7 @@ def json_config():
       }
     }
     """
-    return json.loads(config)
+    return config
 
 
 @pytest.fixture
@@ -65,7 +65,7 @@ def invalid_config():
       }
     }
     """
-    return json.loads(invalid_config)
+    return invalid_config
 
 
 @pytest.fixture
@@ -93,7 +93,7 @@ def config_with_cacheTtl():
       }
     }
     """
-    return json.loads(config_with_cacheTtl)
+    return config_with_cacheTtl
 
 
 @pytest.fixture
@@ -121,7 +121,7 @@ def config_with_null_cacheTtl():
       }
     }
     """
-    return json.loads(config_with_null_cacheTtl)
+    return config_with_null_cacheTtl
 
 
 @pytest.fixture
@@ -149,7 +149,7 @@ def config_with_api_key():
       }
     }
     """
-    return json.loads(config)
+    return config
 
 
 class TestResolver:
@@ -244,9 +244,8 @@ class TestResolver:
             SchemaVer(1, 0, 0),
         )
         schema = get_bootstrap_registry().lookup_schema(schema_key)
-        config = '{ "$schema": "http://iglucentral.com/schemas/com.snowplowanalytics.self-desc/schema/jsonschema/1-0-0#", "description": "Schema for an Iglu resolver\'s configuration", "self": { "vendor": "com.snowplowanalytics.iglu", "name": "resolver-config", "format": "jsonschema", "version": "1-0-0" }, "type": "object", "properties": { "cacheSize": { "type": "number" }, "repositories": { "type": "array", "items": { "type": "object", "properties": { "name": { "type": "string" }, "priority": { "type": "number" }, "vendorPrefixes": { "type": "array", "items": { "type": "string" } }, "connection": { "type": "object", "oneOf": [ { "properties": { "embedded": { "type": "object", "properties": { "path": { "type": "string" } }, "required": ["path"], "additionalProperties": false } }, "required": ["embedded"], "additionalProperties": false }, { "properties": { "http": { "type": "object", "properties": { "uri": { "type": "string", "format": "uri" } }, "required": ["uri"], "additionalProperties": false } }, "required": ["http"], "additionalProperties": false } ] } }, "required": ["name", "priority", "vendorPrefixes", "connection"], "additionalProperties": false } } }, "required": ["cacheSize", "repositories"], "additionalProperties": false }'
-        result = json.loads(config)
-        assert schema == result
+        expected = '{ "$schema": "http://iglucentral.com/schemas/com.snowplowanalytics.self-desc/schema/jsonschema/1-0-0#", "description": "Schema for an Iglu resolver\'s configuration", "self": { "vendor": "com.snowplowanalytics.iglu", "name": "resolver-config", "format": "jsonschema", "version": "1-0-0" }, "type": "object", "properties": { "cacheSize": { "type": "number" }, "repositories": { "type": "array", "items": { "type": "object", "properties": { "name": { "type": "string" }, "priority": { "type": "number" }, "vendorPrefixes": { "type": "array", "items": { "type": "string" } }, "connection": { "type": "object", "oneOf": [ { "properties": { "embedded": { "type": "object", "properties": { "path": { "type": "string" } }, "required": ["path"], "additionalProperties": false } }, "required": ["embedded"], "additionalProperties": false }, { "properties": { "http": { "type": "object", "properties": { "uri": { "type": "string", "format": "uri" } }, "required": ["uri"], "additionalProperties": false } }, "required": ["http"], "additionalProperties": false } ] } }, "required": ["name", "priority", "vendorPrefixes", "connection"], "additionalProperties": false } } }, "required": ["cacheSize", "repositories"], "additionalProperties": false }'
+        assert schema == json.loads(expected)
 
     @pytest.mark.usefixtures("config_with_api_key")
     def test_config_with_api_key(self, config_with_api_key):

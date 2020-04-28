@@ -33,11 +33,11 @@ class RegistryRef(object):
         return len(matches) > 0
 
 
-class LocalFileSystemRegistryRef(RegistryRef):
+class EmbeddedRegistryRef(RegistryRef):
     def __init__(self, config: RegistryRefConfig, path: str):
         self.config = config
         self.class_priority = 1
-        self.descriptor = "embedded"
+        self.descriptor = "bootstrap"
         self.root = path
 
     def lookup_schema(self, schema_key: SchemaKey) -> dict:
@@ -75,7 +75,7 @@ class HttpRegistryRef(RegistryRef):
             except requests.exceptions.ConnectionError as e:
                 raise IgluError(
                     "Iglu registry {config_name} is not available: {error}".format(
-                        config_name=self.config.name, error=e.message
+                        config_name=self.config.name, error=e
                     )
                 )
 
@@ -87,43 +87,16 @@ class HttpRegistryRef(RegistryRef):
             times_retried += 1
 
 
-class NotFound(object):
-    def __init__(self, registry: str):
-        self.registry = registry
-
-    def __str__(self):
-        return "Not found in {registry}".format(registry=self.registry)
-
-    def __repr__(self):
-        return "Not found in {registry}".format(registry=self.registry)
-
-
-class LookupFailure(object):
-    def __init__(self, registry: str, reason: str):
-        self.reason = reason
-        self.registry = registry
-
-    def __str__(self):
-        return "Lookup failure at {registry} because {reason}".format(
-            registry=self.registry, reason=self.reason
-        )
-
-    def __repr__(self):
-        return "Lookup failure at {registry} because {reason}".format(
-            registry=self.registry, reason=self.reason
-        )
-
-
 _bootstrap_registry = None
 
 
-def get_bootstrap_registry() -> LocalFileSystemRegistryRef:
+def get_bootstrap_registry() -> EmbeddedRegistryRef:
     global _bootstrap_registry
     if not _bootstrap_registry:
         _config = RegistryRefConfig(
-            name="Iglu Client Embedded", priority=0, vendor_prefixes=[]
+            name="Iglu Client Bootstrap", priority=0, vendor_prefixes=[]
         )
-        _root = os.path.dirname(os.path.realpath(__file__))
-        _path = os.path.join(_root, "embedded-repo")
-        _bootstrap_registry = LocalFileSystemRegistryRef(_config, _path)
+        _bootstrap_registry = EmbeddedRegistryRef(
+            _config, os.path.dirname(os.path.realpath(__file__))
+        )
     return _bootstrap_registry
