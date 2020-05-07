@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="iglu-client",
-    version="0.1.0",
+    version="0.1.1",
     author="Josh Wymer",
     author_email="josh@mixpanel.com",
     description="A python client for retrieving Iglu schemas and validating self-describing JSON",
@@ -14,7 +14,6 @@ setuptools.setup(
     url="https://github.com/jbwyme/iglu-python-client",
     packages=setuptools.find_packages(),
     include_package_data=True,
-    license_file="LICENSE-2.0.txt",
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: Apache Software License",
