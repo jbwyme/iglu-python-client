@@ -13,6 +13,7 @@ setuptools.setup(
     long_description_content_type="text/markdown",
     url="https://github.com/jbwyme/iglu-python-client",
     packages=setuptools.find_packages(),
+    include_package_data=True,
     license_file="LICENSE-2.0.txt",
     classifiers=[
         "Programming Language :: Python :: 3",
