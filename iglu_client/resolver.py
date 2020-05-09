@@ -7,6 +7,7 @@ from .registries import (
     RegistryRef,
     RegistryRefConfig,
     HttpRegistryRef,
+    EmbeddedRegistryRef,
     get_bootstrap_registry,
 )
 
@@ -86,6 +87,11 @@ class Resolver(object):
                 ref_config,
                 config["connection"]["http"]["uri"],
                 config["connection"]["http"].get("apikey"),
+            )
+        elif config.get("connection", {}).get("embedded"):
+            return EmbeddedRegistryRef(
+                ref_config,
+                config["connection"]["embedded"]["path"]
             )
         else:
             raise IgluError("Incorrect RegistryRef")

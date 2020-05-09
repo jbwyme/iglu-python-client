@@ -32,6 +32,18 @@ def json_config():
                 "uri": "http://iglucentral.com"
               }
             }
+          },
+          {
+            "name": "Iglu Central Local",
+            "priority": 2,
+            "vendorPrefixes": [
+              "com.snowplowanalytics"
+            ],
+            "connection": {
+              "embedded": {
+                "path": "."
+              }
+            }
           }
         ]
       }
@@ -156,9 +168,10 @@ class TestResolver:
     @pytest.mark.usefixtures("json_config")
     def test_standard_configuration(self, json_config):
         resolver = Resolver.parse(json_config)
-        assert len(resolver.registries) == 2
+        assert len(resolver.registries) == 3
         assert resolver.cacheTtl is None
         assert resolver.registries[1].config.name == "Iglu Central"
+        assert resolver.registries[2].config.name == "Iglu Central Local"
 
     @pytest.mark.usefixtures("config_with_cacheTtl")
     def test_config_with_cacheTtl(self, config_with_cacheTtl):
