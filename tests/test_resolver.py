@@ -171,7 +171,7 @@ class TestResolver:
         assert len(resolver.registries) == 3
         assert resolver.cacheTtl is None
         assert resolver.registries[1].config.name == "Iglu Central"
-        assert resolver.registries[2].config.name == "Iglu Central Local"
+        assert resolver.registries[2].config.name == "Iglu Local"
 
     @pytest.mark.usefixtures("config_with_cacheTtl")
     def test_config_with_cacheTtl(self, config_with_cacheTtl):
