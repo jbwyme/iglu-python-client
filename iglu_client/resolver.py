@@ -90,8 +90,7 @@ class Resolver(object):
             )
         elif config.get("connection", {}).get("embedded"):
             return EmbeddedRegistryRef(
-                ref_config,
-                config["connection"]["embedded"]["path"]
+                ref_config, config["connection"]["embedded"]["path"]
             )
         else:
             raise IgluError("Incorrect RegistryRef")
