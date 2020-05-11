@@ -34,7 +34,7 @@ def json_config():
             }
           },
           {
-            "name": "Iglu Central Local",
+            "name": "Iglu Local",
             "priority": 2,
             "vendorPrefixes": [
               "com.snowplowanalytics"
