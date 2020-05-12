@@ -1,3 +1,7 @@
+Version 0.2.0 (2020-05-12)
+--------------------------
+Add support for embedded registry in config
+
 Version 0.1.1 (2020-05-07)
 --------------------------
 Include bootstrap schemas in binary release
