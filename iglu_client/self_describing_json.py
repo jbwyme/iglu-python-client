@@ -36,7 +36,7 @@ class SelfDescribingJson(object):
         if not schema_uri:
             raise IgluError(
                 "JSON instance is not self-describing (schema property is absent):\n {json}".format(
-                    json=json.to_json()
+                    json=payload_json
                 )
             )
 
@@ -44,7 +44,7 @@ class SelfDescribingJson(object):
         if not data:
             raise IgluError(
                 "JSON instance is not self-describing (data proprty is absent):\n {json}".format(
-                    json=json.to_json()
+                    json=payload_json
                 )
             )
 

@@ -1,5 +1,6 @@
 import pytest
 
+from iglu_client.core import IgluError
 from iglu_client.registries import RegistryRefConfig, HttpRegistryRef
 from iglu_client.resolver import Resolver
 from iglu_client.self_describing_json import SelfDescribingJson
@@ -38,3 +39,26 @@ class TestSelfDescribingJson:
     }
     """
         assert not SelfDescribingJson.parse(instance).valid(resolver)
+
+    @pytest.mark.usefixtures("resolver")
+    def test_self_describing_json_missing_schema(self, resolver):
+        instance = """
+    {
+      "data": {
+        "browserid": "9b5cfd54-3b90-455c-9455-9d215ec1c414",
+        "deviceid": "asdfasdfasdfasdfcwer234fa$#ds±f324joaddddd"
+      }
+    }
+    """
+        with pytest.raises(IgluError):
+            SelfDescribingJson.parse(instance)
+
+    @pytest.mark.usefixtures("resolver")
+    def test_self_describing_json_missing_data(self, resolver):
+        instance = """
+    {
+      "schema": "iglu:com.parrable/decrypted_payload/jsonschema/1-0-0"
+    }
+    """
+        with pytest.raises(IgluError):
+            SelfDescribingJson.parse(instance)
